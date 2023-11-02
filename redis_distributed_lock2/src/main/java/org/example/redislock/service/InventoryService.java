@@ -2,7 +2,9 @@ package org.example.redislock.service;
 
 import cn.hutool.core.util.IdUtil;
 import lombok.extern.slf4j.Slf4j;
+import org.example.redislock.mylock.DistributedLockFactory;
 import org.example.redislock.mylock.RedisDistributedLock;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.data.redis.core.script.DefaultRedisScript;
@@ -23,8 +25,14 @@ public class InventoryService {
 
     @Value("${server.port}")
     private String port;
+
+    @Autowired
+    private DistributedLockFactory distributedLockFactory;
+    // V8.0版本，自动续期时间
     public String sale(){
-        Lock lock = new RedisDistributedLock(stringRedisTemplate,"lzxRedisLock");
+
+        Lock lock =distributedLockFactory.getDistributedLock("REDIS");
+
         String retMessage = "";
         lock.lock();
 
@@ -38,6 +46,42 @@ public class InventoryService {
                 stringRedisTemplate.opsForValue().set("inventory001",String.valueOf(--inventoryNumber));
                 retMessage = "成功卖出一个商品，库存剩余: "+inventoryNumber;
                 System.out.println(retMessage);
+                //暂停几秒钟线程,为了测试自动续期
+                try {
+                    TimeUnit.SECONDS.sleep(120);
+                } catch (InterruptedException e) {
+                    throw new RuntimeException(e);
+                }
+            }else{
+                retMessage = "商品卖完了，o(╥﹏╥)o";
+            }
+        }finally {
+            lock.unlock();
+        }
+        return retMessage;
+
+    }
+
+ /* V7.x版本
+
+ public String sale(){
+
+        Lock lock =distributedLockFactory.getDistributedLock("REDIS");
+
+        String retMessage = "";
+        lock.lock();
+
+        try {
+            //1.查询库存信息
+            String reuslt = stringRedisTemplate.opsForValue().get("inventory001");
+            //2.判断库存是否足够
+            Integer inventoryNumber = reuslt == null?0:Integer.valueOf(reuslt);
+            //3.扣减库存
+            if (inventoryNumber>0){
+                stringRedisTemplate.opsForValue().set("inventory001",String.valueOf(--inventoryNumber));
+                retMessage = "成功卖出一个商品，库存剩余: "+inventoryNumber;
+                System.out.println(retMessage);
+                this.testReEnter();
             }else{
                 retMessage = "商品卖完了，o(╥﹏╥)o";
             }
@@ -47,6 +91,18 @@ public class InventoryService {
 
         return retMessage;
 
+    }*/
+
+    private void testReEnter()
+    {
+        Lock redisLock = distributedLockFactory.getDistributedLock("redis");
+        redisLock.lock();
+        try
+        {
+            System.out.println("################测试可重入锁#######");
+        }finally {
+            redisLock.unlock();
+        }
     }
 
     /*  v6.0
