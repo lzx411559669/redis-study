@@ -17,4 +17,9 @@ public class InventoryController {
     public String sale(){
         return inventoryService.sale();
     }
+
+    @GetMapping("/inventory/salebyRedisson")
+    public String saveByRedisson(){
+        return inventoryService.saleByRedisson();
+    }
 }

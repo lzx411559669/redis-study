@@ -1,5 +1,7 @@
 package org.example.redislock.config;
 
+import org.redisson.Redisson;
+import org.redisson.config.Config;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.redis.connection.lettuce.LettuceConnectionFactory;
@@ -30,5 +32,14 @@ public class RedisConfig
         redisTemplate.afterPropertiesSet();
 
         return redisTemplate;
+    }
+
+    //单Redis节点模式
+    @Bean
+    public Redisson redisson()
+    {
+        Config config = new Config();
+        config.useSingleServer().setAddress("redis://192.168.233.129:6379").setDatabase(0).setPassword("111111");
+        return (Redisson) Redisson.create(config);
     }
 }
