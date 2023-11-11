@@ -12,7 +12,7 @@ import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 public class RedisCanalClientExample {
     public static final Integer _60SECONDS = 60;
-    public static final String  REDIS_IP_ADDR = "192.168.233.129";
+    public static final String  REDIS_IP_ADDR = "192.168.233.130";
 
     private static void redisInsert(List<Column> columns)
     {

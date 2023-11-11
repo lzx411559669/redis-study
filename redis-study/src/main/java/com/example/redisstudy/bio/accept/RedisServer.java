@@ -1,4 +1,4 @@
-package com.example.redisstudy.bio;
+package com.example.redisstudy.bio.accept;
 
 import java.io.IOException;
 import java.net.ServerSocket;
