@@ -34,6 +34,12 @@ public class CustomerService {
         }
     }
 
+    public synchronized boolean updateCustomerAge(String customUserId){
+        Customer customer = customerMapper.selectOneById(customUserId);
+        customer.setAge(customer.getAge()+1);
+        return customerMapper.update(customer) > 0;
+    }
+
     public Customer findByCustomerId(Integer id){
         Customer customer = null;
         String key = CACHE_KEY_CUSTOMER+id;

@@ -44,4 +44,10 @@ public class CustomerController {
     public Customer findCustomerByIdWithBloomFilter(@PathVariable int id) {
         return customerSerivce.findCustomerByIdWithBloomFilter(id);
     }
+
+    @Operation(summary = "测试age+1")
+    @RequestMapping(value = "/updateCustomerAge/{id}", method = RequestMethod.GET)
+    public boolean updateCustomerAge(@PathVariable("id")String id) {
+        return customerSerivce.updateCustomerAge(id);
+    }
 }
